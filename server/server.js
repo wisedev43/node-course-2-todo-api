@@ -1,4 +1,4 @@
-var express = require('express');
+const express = require('express');
 var bodyParser = require('body-parser');
 
 var {mangoose} = require('./db/mongoose.js');
@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
   var todo = new Todo({
-    text: req.body.text1
+    text: req.body.text
   })
   
   todo.save().then((doc) => {
@@ -25,3 +25,4 @@ app.listen(3000, () => {
   console.log('App listening on port 3000!');
 });
 
+module.exports = {app};
