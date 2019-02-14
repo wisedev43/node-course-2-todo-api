@@ -1,5 +1,7 @@
+
 const express = require('express');
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
+const _ = require('lodash');
 
 var {mangoose} = require('./db/mongoose.js');
 var {Todo} = require('./models/todo');
@@ -19,6 +21,30 @@ app.post('/todos', (req, res) => {
   }, (e) => {
     res.status(400).send(e);
   });
+});
+
+app.get('/todos', (req, res) => {
+	Todo.find().then((todos) => {
+		res.send({todos});
+	}, (e) => {
+		res.status(400).send(e);
+	})
+});
+
+app.post('/users', (req, res)=>{
+	var body = _.pick(req.body, ['email', 'password']);
+	var user = new User(body);
+	console.log(body);
+	console.log(user);
+
+	user.save().then(() => {
+		return user.generateAuthToken();
+	}).then((token) => {
+		console.log('Token was recieved')
+		res.header('x-auth', token).send(user);
+	}).catch((e) => {
+		res.status(400).send(e);
+	})
 });
 
 app.listen(3000, () => {
