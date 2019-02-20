@@ -49,6 +49,32 @@ app.get('/todos/:id', (req, res) => {
 	}).catch((e) => res.status(400).send());
 });
 
+app.delete('/todos/:id', (req, res) => {
+	// get id
+	var id = req.params.id
+
+	// Validate Id -> not valid? return 404
+	if (!ObjectID.isValid(id)) {
+		return res.status(404).send();
+	}
+
+	//remove todo by id
+	Todo.findByIdAndRemove(id).then((todo) => {
+		// success
+		if (!todo) {
+			// if no doc, send back 404
+			return res.status(404).send();
+		} else {
+			// if doc, send the doc with 200
+			res.status(200).send(todo)
+		}
+	}).catch((e) => {
+		// error
+				// 400 with empty body
+		return res.status(400).send(e);
+	})
+});
+
 app.post('/users', (req, res)=>{
 	var body = _.pick(req.body, ['email', 'password']);
 	var user = new User(body);
