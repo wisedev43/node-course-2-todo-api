@@ -8,6 +8,7 @@ const {ObjectID} = require('mongodb');
 var {mangoose} = require('./db/mongoose.js');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 
@@ -116,22 +117,38 @@ app.post('/users', (req, res)=>{
 	var body = _.pick(req.body, ['email', 'password']);
 	var user = new User(body);
 
-	// console.log(body);
-	// console.log(user);
+	console.log('BODY', body);
+	console.log('USER', user);
 
 	user.save().then(() => {
+		console.log('generation AuthToken....')
 		var obj = user.generateAuthToken();
 		console.log('obj', obj);
 		return obj;
 	// }).then((token) => {
 	}).then((user) => {
-		// console.log('token', token)
 		console.log('user.tokens[0].token', user.tokens[0].token)
 		res.header('x-auth', user.tokens[0].token).send(user);
 	}).catch((e) => {
 		console.log(e);
 		res.status(400).send(e);
 	})
+});
+
+// app.get('/users/me', (req, res) => {
+// 	var token = req.header('x-auth');
+// 	User.findbyToken(token).then((user) => {
+// 		if (!user) {
+// 			Promise.reject();
+// 		}
+// 		res.status(200).send(user);
+// 	}).catch((e) => {
+// 		res.status(401).send();
+// 	});
+// });
+
+app.get('/users/me', authenticate, (req, res) => {
+	res.send(req.user);
 });
 
 app.listen(port, () => {
