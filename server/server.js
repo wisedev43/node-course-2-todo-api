@@ -104,18 +104,32 @@ app.patch('/todos/:id', (req, res) => {
 
 });
 
+app.get('/users', (req, res) => {
+	User.find().then((users) => {
+		res.send({users});
+	}, (e) => {
+		res.status(400).send(e);
+	})
+});
+
 app.post('/users', (req, res)=>{
 	var body = _.pick(req.body, ['email', 'password']);
 	var user = new User(body);
-	console.log(body);
-	console.log(user);
+
+	// console.log(body);
+	// console.log(user);
 
 	user.save().then(() => {
-		return user.generateAuthToken();
-	}).then((token) => {
-		console.log('Token was recieved')
-		res.header('x-auth', token).send(user);
+		var obj = user.generateAuthToken();
+		console.log('obj', obj);
+		return obj;
+	// }).then((token) => {
+	}).then((user) => {
+		// console.log('token', token)
+		console.log('user.tokens[0].token', user.tokens[0].token)
+		res.header('x-auth', user.tokens[0].token).send(user);
 	}).catch((e) => {
+		console.log(e);
 		res.status(400).send(e);
 	})
 });
