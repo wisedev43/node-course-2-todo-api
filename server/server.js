@@ -3,6 +3,7 @@ require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+
 const {ObjectID} = require('mongodb');
 
 var {mangoose} = require('./db/mongoose.js');
@@ -117,13 +118,13 @@ app.post('/users', (req, res)=>{
 	var body = _.pick(req.body, ['email', 'password']);
 	var user = new User(body);
 
-	console.log('BODY', body);
-	console.log('USER', user);
+	// console.log('BODY', body);
+	// console.log('USER', user);
 
 	user.save().then(() => {
 		console.log('generation AuthToken....')
 		var obj = user.generateAuthToken();
-		console.log('obj', obj);
+		// console.log('obj', obj);
 		return obj;
 	// }).then((token) => {
 	}).then((user) => {
