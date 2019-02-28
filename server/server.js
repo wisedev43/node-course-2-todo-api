@@ -124,12 +124,10 @@ app.post('/users', (req, res)=>{
 	user.save().then(() => {
 		console.log('generation AuthToken....')
 		var obj = user.generateAuthToken();
-		// console.log('obj', obj);
+		// console.log('obj=', obj);
 		return obj;
-	// }).then((token) => {
-	}).then((user) => {
-		console.log('user.tokens[0].token', user.tokens[0].token)
-		res.header('x-auth', user.tokens[0].token).send(user);
+	}).then((token) => {
+		res.header('x-auth', token).send(user);
 	}).catch((e) => {
 		console.log(e);
 		res.status(400).send(e);
@@ -150,6 +148,18 @@ app.post('/users', (req, res)=>{
 
 app.get('/users/me', authenticate, (req, res) => {
 	res.send(req.user);
+});
+
+app.post('/users/login', (req, res) => {
+	var body = _.pick(req.body, ['email', 'password']);
+
+	User.findbyCredentials(body.email, body.password).then((user) => {
+		return user.generateAuthToken().then((token) => {
+			res.header('x-auth', token).send(user);
+		})
+	}).catch((e) => {
+		res.status(400).send();
+	});
 });
 
 app.listen(port, () => {

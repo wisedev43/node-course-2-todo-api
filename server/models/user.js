@@ -50,10 +50,12 @@ UserSchema.methods.generateAuthToken = function() {
 
 	// console.log('1-token', token);
 	user.tokens = user.tokens.concat([{access, token}]);
+	// console.log('1-token', token);
 	// console.log('2-user.tokens', user.tokens);
 	// console.log('3-user.tokens.token', user.tokens[0].token);
 
-	return user.save().then((token) => {
+	return user.save().then((user) => {
+		// console.log('1-token', token);
 		return token;
 	})
 }
@@ -78,7 +80,27 @@ UserSchema.statics.findbyToken = function(token) {
 		'tokens.token': token,
 		'tokens.access': 'auth'
 	});
-}
+};
+
+UserSchema.statics.findbyCredentials = function (email, password) {
+	var User = this;
+
+	return User.findOne({email}).then((user) => {
+		if (!user) {
+			return Promise.reject();
+		}
+
+		return new Promise((resolve, reject) => {
+			bcrypt.compare(password, user.password, (err, res) => {
+				if (res) {
+					resolve(user);
+				} else {
+					reject();
+				}
+			})
+		});
+	});
+};
 
 UserSchema.pre('save', function(next) {
 	var user = this;
